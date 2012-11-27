@@ -1,11 +1,30 @@
+"""
+***************************************************************************************************
+The script examples provided by Cisco for your use are provided for
+reference only as a customer courtesay.
+
+They are intended to facilitate development of your own scripts and software
+that interoperate with Cisco switches and software.
+
+Although Cisco has made efforts to create script examples that will be effective
+as aids to script or software development,
+
+Cisco assumes no liability for or support obligations related to the use of the script examples or
+any results obtained using or referring to the script examples.
+
+***************************************************************************************************
+
+"""
 #!/usr/bin/env python
 #
-#  NexusAccess_1x .py,pyc
+#  NexusAccess_m .py,pyc
 #  Author:  Robert Stellman (rostellm)
 #  Date  :  27 Sep 2012 -  New file from NexusAccess.py
 #
-#  Date  :  27 Nov 2012 -  Incorporating sockets for a remote client
+#  Date  :  01 Oct 2012 -  Incorporating sockets for a remote client
 #
+
+
 
 import socket
 from Nexus_Object import *
@@ -18,7 +37,7 @@ from shutil import *
 import curses, curses.panel
 
 
-HOSTS=("172.25.187.155","172.25.187.50","172.25.187.155")
+HOSTS=("172.25.187.155","172.25.187.50","172.25.187.156")
 HOST = '172.25.187.155'            # The remote host
 PORT = 50007                       # The same port as used by the server
 
@@ -47,7 +66,8 @@ def dsp_output_str(bufferText):
               
     y=4; x=0 
     
-    # '
+    # 'Write a loop with lenx and 2500 as the increment until n*2500 < lenx
+
 
     n = 0
     while ( n*2500 < length):
@@ -57,10 +77,8 @@ def dsp_output_str(bufferText):
          pad.clear()
          try: pad.addstr(y,x, bufferText[ml:mu])
          except curses.error: pass      
-
-         # pad.refresh (y,x,ymin,xmin,ymax,xmax)
-
-         try: pad.refresh (0,0,1,1,ymax-2, xmax-2)              
+    
+         try: pad.refresh (0,0,1,1,ymax-2, xmax-2)    # pad.refresh (y,x,ymin,xmin,ymax,xmax)          
          except curses.error: pass
 
          n = n + 1
@@ -180,50 +198,39 @@ def get_menu_data (xinput=' ', host = HOSTS[0]):
     
     screen.move(2,16) 
     bufferText = ""              
-    if xinput == ord(smenu1[0]):  
-          get_cli_data ('show platform software qd info global\n', host)
+    if xinput == ord(smenu1[0]):  get_cli_data ('show platform software qd info global\n', host)
     
     if xinput == ord(smenu1[1]):  # Get Monitor Status
-          bufferText = get_script("/root/scripts/srun.txt")                             
-          bufferText = Nexus1.stringNexusFormat (bufferText)    
-          dsp_output_str(bufferText)
+                                  bufferText = get_script("/root/scripts/srun.txt")                             
+                                  bufferText = Nexus1.stringNexusFormat (bufferText)    
+                                  dsp_output_str(bufferText)
                                   
-    if xinput == ord(smenu1[2]):  
-          get_cli_data ('show int brief\n',host)
+    if xinput == ord(smenu1[2]):  get_cli_data ('show int brief\n',host)
     
-    if xinput == ord(smenu1[3]):  
-          get_cli_data ('BMdata',host,1) 
+    if xinput == ord(smenu1[3]):  get_cli_data ('BMdata',host,1) 
     
-    if xinput == ord(smenu1[4]):  
-          get_cli_data ('sh ip route vrf management\n',host,0)
+    if xinput == ord(smenu1[4]):  get_cli_data ('sh ip route vrf management\n',host,0)
     
-    if xinput == ord('s'):        
-          # Run Script
-          bufferText = get_script('/root/scripts/script.txt')                             
-          bufferm = get_cli_data (bufferText,host,0)
-          Nexus1.s_write ("/root/scripts/srun.txt", bufferm)
+    if xinput == ord('s'):        # Run Script
+                                  bufferText = get_script('/root/scripts/script.txt')                             
+                                  bufferm = get_cli_data (bufferText,host,0)
+                                  Nexus1.s_write ("/root/scripts/srun.txt", bufferm)
                                   
-    if xinput == ord('0'):
-          host    = HOSTS[0] 
-          
-    if xinput == ord('1'):
-          host    = HOSTS[1] 
-          
-    if xinput == ord('2'):
-          host    = HOSTS[2]
+    if xinput == ord('0'):        host    = HOSTS[0]                                         
+    if xinput == ord('1'):        host    = HOSTS[1]                                  
+    if xinput == ord('2'):        host    = HOSTS[2]
     
-    if xinput == ord('m'):        
-          # Run multi-script
-          bufferText = get_script('/root/scripts/mscript.txt')  
+    if xinput == ord('m'):        # Run multi-script
+                                  bufferText = get_script('/root/scripts/mscript.txt')  
                                   
-          i = 0; bufferm =""; n = 3
-          while (i < n):
-                buffer1 = HOSTS[i] + '\n '+ get_mcli_data (bufferText,HOSTS[i]) 
-                bufferm = bufferm + buffer1
-                i =  i + 1
+                                  i = 0; bufferm =""; n = 3
+                                  while (i < n):
+                                      buffer1 = HOSTS[i] + '\n '+ get_mcli_data (bufferText,HOSTS[i]) 
+                                      bufferm = bufferm + buffer1
+                                      i =  i + 1
                                  
-                dsp_output_str(bufferm)
-                Nexus1.s_write ("/root/scripts/mrun.txt", bufferm)
+                                  dsp_output_str(bufferm)
+                                  Nexus1.s_write ("/root/scripts/mrun.txt", bufferm)
                                   
     return(host)
 
@@ -242,9 +249,13 @@ if (curses.has_colors()):
 else:
          hcolor = curses.A_NORMAL
                       
+
+
 xinput = 0
 screen.clear()
 host = HOSTS[0]
+#buffer_mgmt0 = get_mgmt0_ip(2,host)                         # Management IP address
+
 
 while xinput != ord('x'):
                 
@@ -254,6 +265,8 @@ while xinput != ord('x'):
     COL1 = 8
     COL2 = 40
     mline = 2
+
+    #buffer_mgmt0 = get_mgmt0_ip(2, host)                    # Management IP address
 
     title_string = " NexusAccess-0.12m                                                          "
     screen.addstr(1,  1, title_string,curses.A_REVERSE)
